@@ -9,15 +9,20 @@
 import UIKit
 import MBProgressHUD
 
+protocol SettingsPresentingViewControllerDelegate: class {
+    func didSaveSettings(settings: GithubRepoSearchSettings)
+    func didCancelSettings()
+}
+
 // Main ViewController
-class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, SettingsPresentingViewControllerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     
     var searchBar: UISearchBar!
     var searchSettings = GithubRepoSearchSettings()
     var repos: [GithubRepo]!
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -37,6 +42,17 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
 
         // Perform the first search when the view controller first loads
         doSearch()
+    }
+    
+    func didSaveSettings(settings: GithubRepoSearchSettings) {
+        searchSettings.minStars = settings.minStars
+        doSearch()
+        if searchSettings.minStars != 0 {
+            searchSettings.minStars += 1
+        }
+    }
+    
+    func didCancelSettings() {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -76,6 +92,14 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
                 print(error!)
         })
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let navController = segue.destination as! UINavigationController
+        let vc = navController.topViewController as! SearchSettingsViewController
+        vc.settings = self.searchSettings
+        vc.numStars = Float(self.searchSettings.minStars)
+        vc.delegate = self
+    }
 }
 
 // SearchBar methods
@@ -102,3 +126,4 @@ extension RepoResultsViewController: UISearchBarDelegate {
         doSearch()
     }
 }
+

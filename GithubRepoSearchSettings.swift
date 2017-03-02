@@ -9,11 +9,15 @@
 import Foundation
 
 // Model class that represents the user's search settings
-class GithubRepoSearchSettings {
+struct GithubRepoSearchSettings {
     var searchString: String?
-    var minStars = 0
+    var minStars: Int = 0
     
     init() {
         
+    }
+    
+    init(numStars: Int) {
+        minStars = numStars
     }
 }
